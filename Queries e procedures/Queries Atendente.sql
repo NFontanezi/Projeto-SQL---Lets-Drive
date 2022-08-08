@@ -35,7 +35,7 @@ VALUES('Rafael Rocha Dias','1976/09/11','0640987-3','17030-170','Bauru','SP','Ru
 ALTER TABLE atendente
 ALTER COLUMN comissao_atend DECIMAL(5,4);
 
---3. Ver quantos carros o atendente alugou no mês 
+--Ver quantos carros o atendente alugou no mês 
 
 SELECT c.placa,modelo FROM carro as c
 INNER JOIN pedido AS p ON c.placa = p.placa
@@ -43,7 +43,7 @@ INNER JOIN atendente AS a ON a.cod_atend = p.cod_atendente
 WHERE nome_atend = 'Douglas Lima Araújo' AND (p.data_aluguel BETWEEN '2022/03/01' AND '2022/03/31' AND p.data_retorno BETWEEN '2022/03/01' AND '2022/03/31');
 
 
---4. Ver qtos clientes são de x estado
+--Ver qtos clientes são de x estado
 
 SELECT Nome_Cliente,CPF,Estado FROM cliente
 WHERE Estado = 'SP'
@@ -55,7 +55,7 @@ WHERE estado= 'SP'
 GROUP BY Estado;
 
 
---7. Ver quantos carros de um modelo X foram alugados em um mês 
+--Ver quantos carros de um modelo X foram alugados em um mês 
 
 SELECT c.placa,c.Modelo,c.Placa FROM carro as c
 INNER JOIN pedido as p 
@@ -71,17 +71,6 @@ GROUP BY Modelo;
 
 --Pega a soma do valor total das diárias que o atendente alugou
 
-/*CREATE FUNCTION TotalVendido (@cod_atend INT, @data_inicio DATE, @data_final DATE)
-RETURNS DECIMAL (7,2)
-BEGIN
-DECLARE @TotalVend DECIMAL (7,2)
-SET @TotalVend = (SELECT SUM(valor_total) FROM pedido AS p 
-WHERE p.cod_atendente = @cod_atend
-AND (p.data_aluguel BETWEEN @data_inicio AND @data_final)
-GROUP BY valor_total)
-RETURN @TotalVend
-END
-GO*/
 GO
 CREATE FUNCTION TotalVendido (@cod_atend INT, @data_inicio DATE, @data_final DATE)
 RETURNS DECIMAL (7,2)
@@ -91,7 +80,7 @@ WHERE p.cod_atendente = @cod_atend
 AND (p.data_aluguel BETWEEN @data_inicio AND @data_final))
 END
 GO
---DROP FUNCTION dbo.TotalVendido
+
 SELECT dbo.TotalVendido (1,'2022/01/01','2022/01/31') 
 
 
@@ -104,10 +93,9 @@ BEGIN
 END
 GO
 SELECT dbo.CalculaSalario (1,2574.65,0.0625,(SELECT dbo.TotalVendido (1,'2022/01/01','2022/01/31'))) AS SALARIO
---DROP FUNCTION dbo.CalculaSalario
 
----------------------------------------------------------------------------
-USE LetsDrive
+
+------------------------PROCEDURE SALARIO TOTAL --------------------
 GO
 CREATE PROCEDURE SalarioAtendTotal --- Declarando o nome da procedure
 @cod_atend INT, @salario_atend DECIMAL(7,2), @comissao_atend DECIMAL (5,4), @total_vendido DECIMAL(7,2)
@@ -119,21 +107,8 @@ SELECT @SalarioAtendTotal AS Salario_Atendente
 END
 GO
 
-SELECT @SalarioAtendTotal(1,2574.65,0.0625,(SELECT dbo.TotalVendido (1,'2022/01/01','2022/01/31')))
-JOIN
+EXECUTE SalarioAtendTotal 1,2574.65,0.0625,2720
 
-/*create procedure chek_pass  
-@user varchar(200)  
-as  
-begin  
-declare @pass varchar(200)  
-set @pass=dbo.function_to_be_called(@user)  
-select @pass  
-end*/
-
-
-
-SELECT*FROM atendente;
 
 
 
